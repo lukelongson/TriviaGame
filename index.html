@@ -30,6 +30,52 @@
 
   <script>
 
+    // Get Questions and load local storage
+      const getQuestionsAndLoadLocalStorage = async () =>{
+        let {data} = await axios.get("https://opentdb.com/api.php?amount=10&type=boolean");
+        localStorage.setItem("trivia",JSON.stringify(data.results));
+      }
+
+    // Grab questions from storage and display and set correct answer
+      const getQuestionFromStorage = async() =>{
+
+      // Check if there are questions remaining, if not grab new ones
+        if(!localStorage.getItem("trivia")){
+          await getQuestionsAndLoadLocalStorage();
+        }
+        
+        // Grab questions and set correct answer and display
+        let questions = JSON.parse(localStorage.getItem("trivia"));
+        let {question,correct_answer} = questions.pop();
+
+
+        // Reset Localstorage based on remaining questions
+        if(questions.length <= 0){
+          localStorage.removeItem("trivia");
+        } else {
+          localStorage.setItem("trivia",JSON.stringify(questions));
+        }
+        // Set correct answer and display question
+        sessionStorage.setItem("correct answer", correct_answer);
+        $("#question").html(question);
+      }
+
+      const checkAnswer = (e) => {
+        // Check if button has the correct text
+        if(e.target.innerText === sessionStorage.getItem("correct answer")){
+          alert("Correct!");
+          getQuestionFromStorage();
+        } else {
+          alert("Try Again");
+        }
+      }
+
+      // Add event listeners
+$("#trueBtn").click(checkAnswer);
+$("#falseBtn").click(checkAnswer);
+
+$("body").ready(getQuestionFromStorage());
+
   </script>
 </body>
 </html>
